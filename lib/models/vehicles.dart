@@ -1,38 +1,43 @@
 import 'dart:convert';
 
-class Vehicle{
-  Vehicle({
-    this.id,
-    this.brand,
-    this.model,
-    required this.typeCombustible,
-    required this.plate,
-    this.picture
-  });
-  String? id;
-  String? brand;
-  String? model;
-  String typeCombustible;
-  String plate;
-  String? picture;
+class Vehicle {
+    String? id;
+    String brand;
+    String model;
+    String typeCombustible;
+    String? licensePlate;
+    String? pathImage;
+    bool? status;
 
-  factory Vehicle.fromJson(String str) => Vehicle.fromMap(json.decode(str));
-  String toJson() => json.encode(toMap());
-  
-  factory Vehicle.fromMap(Map<String, dynamic> json) => Vehicle(
-    brand: json["brand"],
-    model: json["model"],
-    typeCombustible: json["typeCombustible"],
-    plate: json["plate"],
-    picture: json["picture"],
-  );
+    Vehicle({
+        this.id,
+        required this.brand,
+        required this.model,
+        required this.typeCombustible,
+        this.licensePlate,
+        this.pathImage,
+        this.status,
+    });
 
-  Map<String, dynamic> toMap()=>{
-    "brand": brand,
-    "model": model,
-    "typeCombustible": typeCombustible,
-    "plate": plate,
-    "picture": picture,
-  };
+    factory Vehicle.fromJson(String str) => Vehicle.fromMap(json.decode(str));
 
+    String toJson() => json.encode(toMap());
+
+    factory Vehicle.fromMap(Map<String, dynamic> json) => Vehicle(
+        brand: json['brand'],
+        model: json['model'],
+        typeCombustible: json['type_combustible'],
+        licensePlate: json['license_plate'],
+        pathImage: json['path_image'],
+        status: json['status'],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "brand": brand,
+        "model": model,
+        "type_combustible": typeCombustible,
+        "license_plate": licensePlate,
+        "path_image": pathImage,
+        "status": status,
+    };
 }

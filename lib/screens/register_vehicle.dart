@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:service_app/providers/vehicle_form_provider.dart';
+import 'package:service_app/providers/providers.dart';
 import 'package:service_app/services/services.dart';
 
 class RegisterVehicle extends StatelessWidget {
@@ -10,14 +10,19 @@ class RegisterVehicle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vehicleService = Provider.of<VehicleService>(context);
-    return _VehicleScreenBody(
-      vehicleService: vehicleService,
-    );
+    return ChangeNotifierProvider(
+        create: ( _ ) => VehicleFormProvider(vehicleService.selectedVehicle),
+        child: _VehicleScreenBody(
+          vehicleService: vehicleService,
+        )
+      );
   }
 }
 
 class _VehicleScreenBody extends StatelessWidget {
-  const _VehicleScreenBody({required this.vehicleService, super.key});
+  const _VehicleScreenBody({ 
+    required this.vehicleService,
+   });
   final VehicleService vehicleService;
   @override
   Widget build(BuildContext context) {
@@ -77,7 +82,7 @@ class _VehicleScreenBody extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               height: MediaQuery.of(context).size.height -
                   120.0, // Ajusta la altura
-              child:  _VehicleForm(vehicleService: vehicleService),
+              child: _VehicleForm(vehicleService: vehicleService),
             ),
           ),
         ],
@@ -98,7 +103,7 @@ class _VehicleForm extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal:20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         width: double.infinity,
         //decoration: _buildBoxDecoration(),
         child: Form(
@@ -121,13 +126,13 @@ class _VehicleForm extends StatelessWidget {
               TextFormField(
                 initialValue: vehicle.brand,
                 onChanged: (value) => vehicle.brand = value,
-                validator: ( value ){
-                  if(value == null || value.length < 1){
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
                     return 'El campo es obligatorio';
                   }
                   return null;
                 },
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Introduce la marca del vehículo',
                   hintStyle: TextStyle(fontWeight: FontWeight.w300),
                   border: UnderlineInputBorder(),
@@ -180,22 +185,21 @@ class _VehicleForm extends StatelessWidget {
               ),
               const SizedBox(height: 8.0),
               GestureDetector(
-                onTap: () async{
+                onTap: () async {
                   final picker = ImagePicker();
                   final XFile? pickedFile = await picker.pickImage(
                     source: ImageSource.camera,
                     imageQuality: 100,
                   );
-                  if(pickedFile == null) return;
+                  if (pickedFile == null) return;
                   vehicleService.updateSelectedVehicleImage(pickedFile.path);
-
                 },
                 child: Container(
                   width: double.infinity,
                   height: 150.0,
                   color: Colors.grey[300],
-                  child:
-                      Icon(Icons.camera_alt, color: Colors.grey[600], size: 50.0),
+                  child: Icon(Icons.camera_alt,
+                      color: Colors.grey[600], size: 50.0),
                 ),
               ),
               const SizedBox(height: 8.0),
@@ -207,33 +211,36 @@ class _VehicleForm extends StatelessWidget {
               ),
               const SizedBox(height: 32.0),
               Center(
-                child: vehicleService.isSaving 
-                    ? CircularProgressIndicator( color: Colors.white,)
-                    :
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 50.0, vertical: 15.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
-                  onPressed: vehicleService.isSaving
-                      ? null
-                      : () async {
-                        if (!vehicleForm.isValidForm()) return;
-                        final String? imageUrl = await vehicleService.uploadImage();
-                        if (imageUrl != null) {
-                          vehicleForm.vehicle.picture = imageUrl;
-                          await vehicleService.saveOrCreateVehicle(vehicleForm.vehicle);
-                        }
-                      },
-                  child: const Text(
-                    'Solicitar registro',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
+                child: vehicleService.isSaving
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50.0, vertical: 15.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                        ),
+                        onPressed: vehicleService.isSaving
+                            ? null
+                            : () async {
+                                if (!vehicleForm.isValidForm()) return;
+                                final String? imagePath =
+                                    await vehicleService.uploadImage();
+                                if (imagePath != null) {
+                                  vehicleForm.vehicle.pathImage = imagePath;
+                                  await vehicleService
+                                      .saveOrCreateVehicle(vehicleForm.vehicle);
+                                }
+                              },
+                        child: const Text(
+                          'Solicitar registro',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
               ),
             ],
           ),
