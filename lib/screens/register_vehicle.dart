@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:service_app/models/models.dart';
 import 'package:service_app/providers/providers.dart';
 import 'package:service_app/services/services.dart';
 
@@ -11,7 +12,7 @@ class RegisterVehicle extends StatelessWidget {
   Widget build(BuildContext context) {
     final vehicleService = Provider.of<VehicleService>(context);
     return ChangeNotifierProvider(
-        create: ( _ ) => VehicleFormProvider(vehicleService.selectedVehicle),
+        create: ( _ ) => VehicleFormProvider( vehicleService.selectedVehicle ),
         child: _VehicleScreenBody(
           vehicleService: vehicleService,
         )
@@ -26,7 +27,6 @@ class _VehicleScreenBody extends StatelessWidget {
   final VehicleService vehicleService;
   @override
   Widget build(BuildContext context) {
-    final vehicleForm = Provider.of<VehicleFormProvider>(context);
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -39,7 +39,7 @@ class _VehicleScreenBody extends StatelessWidget {
                   child: Row(
                     children: <Widget>[
                       IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.white),
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
                           // Acción al presionar el botón de regreso
                         },
@@ -97,7 +97,7 @@ class _VehicleForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vehicleForm = Provider.of<VehicleFormProvider>(context);
-    final vehicle = vehicleForm.vehicle;
+    
     String selectedFuelType = "Gasolina";
     List<String> fuelTypes = ['Gasolina', 'Diésel', 'Eléctrico'];
     return Padding(
@@ -124,8 +124,9 @@ class _VehicleForm extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               TextFormField(
-                initialValue: vehicle.brand,
-                onChanged: (value) => vehicle.brand = value,
+                onChanged: (value) {
+                  vehicleForm.vehicle.brand = value;
+                  },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'El campo es obligatorio';
@@ -144,8 +145,7 @@ class _VehicleForm extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               TextFormField(
-                initialValue: vehicle.model,
-                onChanged: (value) => vehicle.model = value,
+                onChanged: (value) => vehicleForm.vehicle.model = value,
                 decoration: const InputDecoration(
                   hintText: 'Introduce el modelo del vehículo',
                   border: UnderlineInputBorder(),
@@ -173,7 +173,7 @@ class _VehicleForm extends StatelessWidget {
                       );
                     }).toList(),
                     onChanged: (String? value) {
-                      vehicle.typeCombustible = value!;
+                      vehicleForm.vehicle.typeCombustible = value!;
                     },
                   ),
                 ),
@@ -213,7 +213,7 @@ class _VehicleForm extends StatelessWidget {
               Center(
                 child: vehicleService.isSaving
                     ? const CircularProgressIndicator(
-                        color: Colors.white,
+                        color: Colors.red,
                       )
                     : ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -228,13 +228,18 @@ class _VehicleForm extends StatelessWidget {
                             ? null
                             : () async {
                                 if (!vehicleForm.isValidForm()) return;
+                                print("solicitar registro");
                                 final String? imagePath =
                                     await vehicleService.uploadImage();
+                                    print("image path: ${imagePath}");
                                 if (imagePath != null) {
                                   vehicleForm.vehicle.pathImage = imagePath;
-                                  await vehicleService
+                                  vehicleForm.vehicle.nameImage = vehicleService.nameImage;
+                                 await vehicleService
                                       .saveOrCreateVehicle(vehicleForm.vehicle);
+                                    Navigator.pop(context, 'home');
                                 }
+
                               },
                         child: const Text(
                           'Solicitar registro',

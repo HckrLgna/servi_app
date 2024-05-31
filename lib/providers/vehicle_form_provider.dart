@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:service_app/models/models.dart';
+import 'package:service_app/models/vehicles.dart';
 
 class VehicleFormProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -7,11 +8,7 @@ class VehicleFormProvider extends ChangeNotifier {
   VehicleFormProvider( this.vehicle );
 
   bool isValidForm() {
-    print(
-      vehicle.brand,
-    );
-    print(vehicle.model);
-    print(vehicle.licensePlate);
+    print(vehicle.brand);
     return formKey.currentState?.validate() ?? false;
   }
 }

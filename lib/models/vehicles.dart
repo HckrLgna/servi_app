@@ -7,16 +7,15 @@ class Vehicle {
     String typeCombustible;
     String? licensePlate;
     String? pathImage;
-    bool? status;
-
+    String? nameImage;
+    bool? status;    
     Vehicle({
         this.id,
         required this.brand,
         required this.model,
         required this.typeCombustible,
-        this.licensePlate,
         this.pathImage,
-        this.status,
+        this.licensePlate
     });
 
     factory Vehicle.fromJson(String str) => Vehicle.fromMap(json.decode(str));
@@ -26,18 +25,16 @@ class Vehicle {
     factory Vehicle.fromMap(Map<String, dynamic> json) => Vehicle(
         brand: json['brand'],
         model: json['model'],
-        typeCombustible: json['type_combustible'],
-        licensePlate: json['license_plate'],
-        pathImage: json['path_image'],
-        status: json['status'],
+        typeCombustible: json['typeCombustible'],
+        pathImage: json['pathImage'],
+        
     );
 
     Map<String, dynamic> toMap() => {
         "brand": brand,
         "model": model,
-        "type_combustible": typeCombustible,
-        "license_plate": licensePlate,
-        "path_image": pathImage,
-        "status": status,
+        "typeCombustible": typeCombustible,
+        "pathImage": pathImage,
+        "nameImage": nameImage,
     };
 }

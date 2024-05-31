@@ -8,9 +8,10 @@ import 'package:http/http.dart' as http;
 
 class VehicleService extends ChangeNotifier {
   final String _baseUrl = "http://192.168.0.5:8080/api/vehicles";
+  final String _uploadUrl = "http://192.168.0.5:8080/api/vehicles/upload";
   final List<Vehicle> vehicles = [];
   late Vehicle selectedVehicle;
-
+  late String nameImage;
   XFile? newPictureFile;
   bool isLoading = true;
   bool isSaving = false;
@@ -38,9 +39,10 @@ class VehicleService extends ChangeNotifier {
   }
 
   Future saveOrCreateVehicle(Vehicle vehicle) async {
+    print("entro saveOrCreateVehicle");
     isSaving = true;
     notifyListeners();
-    //TODO: check both
+    print("vehicle id: ${vehicle.id}");
     if (vehicle.id == null) {
       await createVehicle(vehicle);
     } else {
@@ -51,11 +53,23 @@ class VehicleService extends ChangeNotifier {
   }
 
   Future<String> createVehicle(Vehicle vehicle) async {
-    final url = Uri.https(_baseUrl);
-    final resp = await http.post(url, body: vehicle.toJson());
+    print("entro a create");
+    final url = Uri.parse(_baseUrl);
+    print("modelo vehiculo :${vehicle.model}");
+    final body = vehicle.toJson();
+
+    print(body);
+    final resp = await http.post(
+                                url, 
+                                body: body,
+                                headers: {'Content-Type': 'application/json'},);
     final decodedData = json.decode(resp.body);
-    vehicle.id = decodedData['name'];
+  
+    print(decodedData);
+    vehicle.licensePlate = decodedData['vehicle']['licensePlate'];
+    vehicle.id = decodedData['vehicle']['_id'];
     vehicles.add(vehicle);
+   
     return vehicle.id!;
   }
 
@@ -79,13 +93,17 @@ class VehicleService extends ChangeNotifier {
     isSaving = true;
     notifyListeners();
     //TODO: check
-    final url = Uri.parse('$_baseUrl');
+    final url = Uri.parse(_uploadUrl);
+    print('URL: $url');
     final imageUploadRequest = http.MultipartRequest('POST', url);
+
     imageUploadRequest.files.add(http.MultipartFile.fromBytes(
-        'file', File(newPictureFile!.path).readAsBytesSync(),
+        'image', File(newPictureFile!.path).readAsBytesSync(),
         filename: newPictureFile!.path.split('/').last));
+
     final streamResponse = await imageUploadRequest.send();
     final resp = await http.Response.fromStream(streamResponse);
+    print(resp.statusCode);
     if (resp.statusCode != 200 && resp.statusCode != 201) {
       print('Something went wrong');
       return null;
@@ -93,6 +111,8 @@ class VehicleService extends ChangeNotifier {
     final decodedData = json.decode(resp.body);
     isSaving = false;
     notifyListeners();
-    return decodedData['secure_url'];
+    print(decodedData);
+    nameImage = decodedData['nameImage'];
+    return decodedData['pathImage'];
   }
 }

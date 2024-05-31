@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:service_app/models/models.dart';
 import 'package:service_app/providers/providers.dart';
+import 'package:service_app/screens/loading_screen.dart';
 import 'package:service_app/services/services.dart';
+import 'package:service_app/widgets/vehicle_card.dart';
 
 class ProfileUser extends StatelessWidget {
   const ProfileUser({super.key});
@@ -9,20 +12,7 @@ class ProfileUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vehicleService = Provider.of<VehicleService>(context);
-    return ChangeNotifierProvider(
-        create: (_) => VehicleFormProvider(vehicleService.selectedVehicle),
-        builder: (context, child) {
-          // No longer throws
-          return _ProfileScreenBody(vehicleService: vehicleService);
-        });
-  }
-}
-
-class _ProfileScreenBody extends StatelessWidget {
-  const _ProfileScreenBody({super.key, required this.vehicleService});
-  final VehicleService vehicleService;
-  @override
-  Widget build(BuildContext context) {
+    if (vehicleService.isLoading) return const LoadingScreen();
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -86,7 +76,7 @@ class _ProfileScreenBody extends StatelessWidget {
                     const CircleAvatar(
                       radius: 50,
                       backgroundImage:
-                          NetworkImage('https://example.com/profile_image.jpg'),
+                          NetworkImage('https://static.vecteezy.com/system/resources/thumbnails/002/002/403/small/man-with-beard-avatar-character-isolated-icon-free-vector.jpg'),
                     ),
                     const SizedBox(height: 16),
                     const Text('Nombre: Juan Pérez',
@@ -98,19 +88,33 @@ class _ProfileScreenBody extends StatelessWidget {
                       child: ListView.builder(
                         itemCount: vehicleService.vehicles.length,
                         itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(vehicleService.vehicles[index].brand),
-                            subtitle: Text(vehicleService.vehicles[index].brand),
-                          );
+                          return VehicleCard(vehicle: vehicleService.vehicles[index]);
                         },
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        // Acción al presionar el botón (por ejemplo, editar perfil)
-                      },
-                      child: Text('Editar Perfil'),
-                    ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50.0, vertical: 15.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                        ),
+                        onPressed: () {
+                            vehicleService.selectedVehicle = Vehicle(
+                              brand: "",
+                              model: "",
+                              typeCombustible: "",  
+                            );
+                            Navigator.pushNamed(context, 'register');
+                        },
+                              
+                        child: const Text(
+                          'Nuevo registro',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -119,5 +123,6 @@ class _ProfileScreenBody extends StatelessWidget {
         ],
       ),
     );
+  
   }
 }

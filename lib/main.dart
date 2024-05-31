@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Service App',
       navigatorKey: navigatorKey,
-      initialRoute: 'profile',
+      initialRoute: 'home',
       routes:{
         'home': ( _ ) => const HomeScreen(),
         'register': ( _ ) => const RegisterVehicle(), // Se agrega la ruta 'register
