@@ -8,8 +8,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vehicleService = Provider.of<VehicleService>(context);
-    if ( vehicleService.isLoading ) return const LoadingScreen();
+    //final vehicleService = Provider.of<VehicleService>(context);
+    //if ( vehicleService.isLoading ) return const LoadingScreen();
     return Scaffold(
       body: Stack(
         children: <Widget>[

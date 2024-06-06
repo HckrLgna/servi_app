@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:service_app/screens/register_client.dart';
 import 'package:service_app/services/services.dart';
 import 'package:service_app/screens/screens.dart';
 void main() => runApp( const AppState());
@@ -27,11 +28,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Service App',
       navigatorKey: navigatorKey,
-      initialRoute: 'home',
+      initialRoute: 'register_client',
       routes:{
         'home': ( _ ) => const HomeScreen(),
-        'register': ( _ ) => const RegisterVehicle(), // Se agrega la ruta 'register
+        'register_vehicle': ( _ ) => const RegisterVehicle(), // Se agrega la ruta 'register
+        'register_client': ( _ ) => const RegisterClient(), // Se agrega la ruta 'register
         'profile': ( _ ) => const ProfileUser(),
+        'request_fuel': ( _ ) => const RequestFuel(),
+        'request_pay': ( _ ) => const RequestPay(),
       },
     );
   }
