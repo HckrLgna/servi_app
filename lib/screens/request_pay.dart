@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:service_app/providers/providers.dart';
 
 class RequestPay extends StatelessWidget {
   const RequestPay({super.key});
@@ -82,9 +83,8 @@ class _PayForm extends StatelessWidget {
   const _PayForm({super.key});
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-    int cantidadSolicitada = 0;
-    double precioSolicitado = 0.0;
+    final fuelForm = ModalRoute.of(context)?.settings.arguments as FuelFormProvider;
+    
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -108,7 +108,7 @@ class _PayForm extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$cantidadSolicitada',
+                      '$fuelForm.quantity',
                       style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                     const Text(
@@ -117,7 +117,7 @@ class _PayForm extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '$precioSolicitado Bs',
+                      '$fuelForm.price Bs',
                       style: const TextStyle(fontSize: 20, color: Colors.white),
                     ),
                     const Text(
@@ -131,16 +131,15 @@ class _PayForm extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.white),
                       onPressed: () {
-                        cantidadSolicitada = 0;
-                        precioSolicitado = 0.0;
+                        fuelForm.quantity = 0;
+                        fuelForm.price = 0;
                       },
                     ),
                     IconButton(
                       icon: const Icon(Icons.add_circle, color: Colors.white),
                       onPressed: () {
-                        cantidadSolicitada++;
-                        precioSolicitado +=
-                            10; // Supongamos que cada carga cuesta 10 Bs.
+                       fuelForm.quantity = 0;
+                        fuelForm.price = 0;
                       },
                     ),
                   ],
@@ -156,7 +155,7 @@ class _PayForm extends StatelessWidget {
           const SizedBox(height: 10),
           Center(
             child: QrImageView(
-              data: 'Cantidad: $cantidadSolicitada, Total: $precioSolicitado Bs',
+              data: 'https://www.multipago.com/service/CBA/first',
               version: QrVersions.auto,
               size: 200.0,
             ),

@@ -107,7 +107,7 @@ class ProfileUser extends StatelessWidget {
                               model: "",
                               typeCombustible: "",  
                             );
-                            Navigator.pushNamed(context, 'register');
+                            Navigator.pushNamed(context, 'register_vehicle');
                         },
                               
                         child: const Text(

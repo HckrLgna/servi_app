@@ -12,6 +12,7 @@ class AppState extends StatelessWidget{
     return MultiProvider(
       providers:[
         ChangeNotifierProvider(create: (_) => VehicleService()),
+        ChangeNotifierProvider(create: (_) => AuthService()),
       ],
       child: MyApp()
     );
@@ -28,8 +29,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Service App',
       navigatorKey: navigatorKey,
-      initialRoute: 'register_client',
+      initialRoute: 'login',
       routes:{
+        'login': ( _ ) => const LoginScreen(),
         'home': ( _ ) => const HomeScreen(),
         'register_vehicle': ( _ ) => const RegisterVehicle(), // Se agrega la ruta 'register
         'register_client': ( _ ) => const RegisterClient(), // Se agrega la ruta 'register

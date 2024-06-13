@@ -7,8 +7,8 @@ import 'package:service_app/models/models.dart';
 import 'package:http/http.dart' as http;
 
 class VehicleService extends ChangeNotifier {
-  final String _baseUrl = "http://10.29.9.165:8080/api/vehicles";
-  final String _uploadUrl = "http://10.29.9.165:8080/api/vehicles/upload";
+  final String _baseUrl = "https://brilliant-mindfulness-production.up.railway.app/api/vehicles";
+  final String _uploadUrl = "https://brilliant-mindfulness-production.up.railway.app/api/vehicles/upload";
   final List<Vehicle> vehicles = [];
   late Vehicle selectedVehicle;
   late String nameImage;

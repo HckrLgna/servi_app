@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:service_app/providers/providers.dart';
+import 'package:service_app/services/services.dart';
 
 class RequestFuel extends StatelessWidget {
   const RequestFuel({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return const _VehicleScreenBody();
-  }
-}
-
-class _VehicleScreenBody extends StatelessWidget {
-  const _VehicleScreenBody();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +63,10 @@ class _VehicleScreenBody extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               height: MediaQuery.of(context).size.height -
                   120.0, // Ajusta la altura
-              child: _FuelForm(),
+              child: ChangeNotifierProvider(
+                create: ( _ ) => FuelFormProvider(),
+                child: const _FuelForm(),
+                )
             ),
           ),
         ],
@@ -81,17 +79,11 @@ class _FuelForm extends StatelessWidget {
   const _FuelForm({super.key});
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-    String? _tipoCombustible;
-    String? _tanque;
-    String? _bomba;
-    String? _cantidadLts;
-    String? _cantidadBs;
-
+    final fuelForm = Provider.of<FuelFormProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Form(
-        key: _formKey,
+        key: fuelForm.formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -107,7 +99,7 @@ class _FuelForm extends StatelessWidget {
                 );
               }).toList(),
               onChanged: (newValue) {
-                _tipoCombustible = newValue;
+                
               },
               validator: (value) =>
                   value == null ? 'Seleccione un tipo de combustible' : null,
@@ -125,7 +117,7 @@ class _FuelForm extends StatelessWidget {
                 );
               }).toList(),
               onChanged: (newValue) {
-                _tanque = newValue;
+                 
               },
               validator: (value) =>
                   value == null ? 'Seleccione un tanque' : null,
@@ -143,7 +135,7 @@ class _FuelForm extends StatelessWidget {
                 );
               }).toList(),
               onChanged: (newValue) {
-                _bomba = newValue;
+                
               },
               validator: (value) =>
                   value == null ? 'Seleccione una bomba' : null,
@@ -153,14 +145,12 @@ class _FuelForm extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Cantidad',
                       suffixText: 'Lts',
                     ),
                     keyboardType: TextInputType.number,
-                    onSaved: (value) {
-                      _cantidadLts = value;
-                    },
+                    onChanged: (value) => fuelForm.quantity = double.parse(value) ,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Ingrese la cantidad en litros';
@@ -173,13 +163,11 @@ class _FuelForm extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     decoration: const InputDecoration(
-                      labelText: '',
+                      labelText: 'Precio',
                       suffixText: 'Bs.',
                     ),
                     keyboardType: TextInputType.number,
-                    onSaved: (value) {
-                      _cantidadBs = value;
-                    },
+                    onChanged: (value) => fuelForm.price = double.parse(value),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Ingrese la cantidad en Bs.';
@@ -191,26 +179,47 @@ class _FuelForm extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 32),
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 50.0, vertical: 15.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                ),
-                onPressed: () {
-                   
-                  Navigator.pushNamed(context, 'request_pay');
-                },
-                child: const Text(
-                  'Soliciar Carga',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
+             MaterialButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                disabledColor: Colors.grey,
+                elevation: 0,
+                color: Colors.red,
+                onPressed: fuelForm.isLoading
+                    ? null
+                    : () async {
+                        FocusScope.of(context).unfocus();
+                        final fuelService =
+                            Provider.of<FuelService>(context, listen: false);
+
+                        if (!fuelForm.isValidForm()) return;
+
+                        fuelForm.isLoading = true;
+
+                        // TODO: validar si el login es correcto
+                        final String? errorMessage = await fuelService.registerFuelSale(
+                            fuelForm.quantity, fuelForm.price);
+
+                        if (errorMessage == null) {
+                          Navigator.pushReplacementNamed(context, 'request_pay', arguments: fuelForm);
+                        } else {
+                          // TODO: mostrar error en pantalla
+                           print( errorMessage );
+                          //NotificationsService.showSnackbar(errorMessage);
+                          fuelForm.isLoading = false;
+                        }
+                      },
+                child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 80, vertical: 15),
+                    child: Text(
+                      fuelForm.isLoading ? 'Espere...' : 'Ingresar',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    )),
+              )
           ],
         ),
       ),
